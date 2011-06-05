@@ -85,6 +85,10 @@ module XMLSecurity
       canoner                 = XML::Util::XmlCanonicalizer.new(false, true)
       signed_info_element     = REXML::XPath.first(sig_element, "//ds:SignedInfo", {"ds"=>"http://www.w3.org/2000/09/xmldsig#"})
       canon_string            = canoner.canonicalize(signed_info_element)
+      # add namespace on non ds: SAMLs
+      if signed_info_element.namespaces.has_key?("xmlns")
+        canon_string.gsub!(/<SignedInfo/, '<SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"')
+      end
 
       base64_signature        = REXML::XPath.first(sig_element, "//ds:SignatureValue", {"ds"=>"http://www.w3.org/2000/09/xmldsig#"}).text
       signature               = Base64.decode64(base64_signature)
